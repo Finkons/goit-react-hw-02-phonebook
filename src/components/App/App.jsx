@@ -18,14 +18,14 @@ export class App extends Component {
   };
 
   addContact = ({ name, number }) => {
-    const Name = name.toLowerCase();
+    const normalizedName = name.toLowerCase();
 
-    const findName = this.state.contacts
-      .map(contact => contact.name.toLowerCase())
-      .includes(Name);
+    const existingName = this.state.contacts.find(contact =>
+      contact.name.toLowerCase().includes(normalizedName)
+    );
 
-    if (findName) {
-      Report.failure(`${Name} is already in contacts`, 'sorry');
+    if (existingName) {
+      Report.failure(`${normalizedName} is already in contacts`, 'sorry');
       return;
     }
 
@@ -41,8 +41,8 @@ export class App extends Component {
   };
 
   onDeleteContact = id => {
-    this.setState(perv => ({
-      contacts: perv.contacts.filter(contact => contact.id !== id),
+    this.setState(prev => ({
+      contacts: prev.contacts.filter(contact => contact.id !== id),
     }));
   };
 
@@ -62,17 +62,18 @@ export class App extends Component {
 
   render() {
     const { filter } = this.state;
+    const { addContact, onChangeFilter, onDeleteContact } = this;
+    const visibleContacts = this.getVisibleContacts();
 
-    const onVisibleContacts = this.getVisibleContacts();
     return (
       <Container>
         <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.addContact} />
+        <ContactForm onSubmit={addContact} />
         <h2>Contacts</h2>
-        <Filter value={filter} onChange={this.onChangeFilter} />
+        <Filter value={filter} onChange={onChangeFilter} />
         <ContactList
-          contacts={onVisibleContacts}
-          onDeleteContact={this.onDeleteContact}
+          contacts={visibleContacts}
+          onDeleteContact={onDeleteContact}
         />
       </Container>
     );
